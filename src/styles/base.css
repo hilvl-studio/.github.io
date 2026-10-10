@@ -1,0 +1,121 @@
+/* ==========================================================================
+   BASE: reset, global typography, shared interaction primitives
+   ========================================================================== */
+
+/*
+ * Pigarnos Neue: place the font files in /public/fonts/ and uncomment the rule below.
+ * Until then the fallback stack is used.
+ *
+ * @font-face {
+ *   font-family: 'Pigarnos Neue';
+ *   src: url('/fonts/PigarnosNeue.woff2') format('woff2');
+ *   font-weight: 100 900;
+ *   font-style: normal;
+ *   font-display: swap;
+ * }
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --font-primary: 'Pigarnos Neue', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --color-bg: #000000;
+  --color-text: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --ease-premium: cubic-bezier(0.25, 1, 0.25, 1);
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-primary);
+  letter-spacing: 2px;
+  overflow-x: hidden;
+  height: 100vh;
+  height: 100svh;
+  min-height: -webkit-fill-available;
+  scroll-behavior: smooth;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 4px;
+}
+
+/* Glassmorphic surface: shared by cards and popup panels */
+.glass {
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+/* Interaction primitives: lightweight, GPU-friendly transitions */
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--ease-premium);
+}
+
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

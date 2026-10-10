@@ -1,0 +1,14 @@
+/* ==========================================================================
+   MAIN STYLESHEET ENTRY
+   Import order matters: base -> layout -> popup
+   ========================================================================== */
+
+@import './styles/base.css';
+@import './styles/layout.css';
+@import './styles/popup.css';
+
+/* Background layer must fill its positioned region (top of page to end of #capabilities) */
+.bg-layer {
+  inset: 0;
+  height: 100%;
+}
