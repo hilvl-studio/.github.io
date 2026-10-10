@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState, useCallback } from 'react';
 import MicroSlats from './Background';
 import Hero from './components/Hero';
 import Capabilities from './components/Capabilities';

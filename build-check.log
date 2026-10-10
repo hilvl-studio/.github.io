@@ -1,0 +1,5 @@
+dyld: Symbol not found: __ZNSt3__113basic_filebufIcNS_11char_traitsIcEEE4openEPKcj
+  Referenced from: /usr/local/bin/node (which was built for Mac OS X 13.5)
+  Expected in: /usr/lib/libc++.1.dylib
+
+EXIT_CODE=134

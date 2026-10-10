@@ -654,6 +654,7 @@ const MicroSlats = ({
     let splashTurn = 0;
     const splats: Splat[] = [];
     const pointer = { x: 0, y: 0, tracked: false };
+    const touch = { x: 0, y: 0, tracked: false };
 
     const run = (mesh: Mesh, target?: RenderTarget) => renderer.render({ scene: mesh, target, clear: false });
 
@@ -908,7 +909,7 @@ const MicroSlats = ({
       raf = requestAnimationFrame(frame);
     };
 
-    const locate = (e: PointerEvent) => {
+    const locate = (e: { clientX: number; clientY: number }) => {
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -926,6 +927,8 @@ const MicroSlats = ({
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      // Touch input is handled by the touch listeners below (continuous drag tracking)
+      if (e.pointerType === 'touch') return;
       const s = settingsRef.current;
       const spot = locate(e);
       if (!fluid || !s || !s.interactive || reducedMotion || !spot.inside) {
@@ -941,6 +944,7 @@ const MicroSlats = ({
     };
 
     const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
       const s = settingsRef.current;
       const spot = locate(e);
       if (!fluid || !s || !s.interactive || reducedMotion || !spot.inside) return;
@@ -948,8 +952,46 @@ const MicroSlats = ({
       queue(spot.u, spot.v, 0, 0, splashTurn);
     };
 
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      const s = settingsRef.current;
+      if (!t || !fluid || !s || !s.interactive || reducedMotion) return;
+      const spot = locate(t);
+      if (!spot.inside) {
+        touch.tracked = false;
+        return;
+      }
+      splashTurn += 2.39996;
+      queue(spot.u, spot.v, 0, 0, splashTurn);
+      touch.x = spot.x;
+      touch.y = spot.y;
+      touch.tracked = true;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      const s = settingsRef.current;
+      if (!t || !fluid || !s || !s.interactive || reducedMotion) return;
+      const spot = locate(t);
+      if (!spot.inside) {
+        touch.tracked = false;
+        return;
+      }
+      if (touch.tracked && (spot.x !== touch.x || spot.y !== touch.y)) {
+        queue(spot.u, spot.v, (spot.x - touch.x) / spot.h, (touch.y - spot.y) / spot.h, null);
+      }
+      touch.x = spot.x;
+      touch.y = spot.y;
+      touch.tracked = true;
+    };
+
+    const onTouchEnd = () => {
+      touch.tracked = false;
+    };
+
     const onPointerLeave = () => {
       pointer.tracked = false;
+      touch.tracked = false;
     };
 
     const onPointerOut = (e: PointerEvent) => {
@@ -963,6 +1005,10 @@ const MicroSlats = ({
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     window.addEventListener('pointerout', onPointerOut, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', onTouchEnd, { passive: true });
     window.addEventListener('blur', onPointerLeave);
     document.addEventListener('visibilitychange', onVisibility);
 
@@ -986,6 +1032,10 @@ const MicroSlats = ({
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointerout', onPointerOut);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('touchcancel', onTouchEnd);
       window.removeEventListener('blur', onPointerLeave);
       document.removeEventListener('visibilitychange', onVisibility);
       wakeRef.current = null;

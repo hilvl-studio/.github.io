@@ -354,4 +354,17 @@ section {
   .pillar p { font-size: 14px; }
   .works-grid { grid-template-columns: 1fr; gap: 30px; }
   .footer-content h2 { font-size: 26px; margin-bottom: 30px; }
+
+  /* Subtle horizontal stretch for work images on phone viewports.
+     The box is widened slightly and centred; the image is stretched
+     by 4% on X only, while object-fit: cover keeps the frame filled. */
+  .work-img-box {
+    width: 104%;
+    margin-left: -2%;
+  }
+
+  .work-item img {
+    transform: scaleX(1.04);
+    transform-origin: center;
+  }
 }
